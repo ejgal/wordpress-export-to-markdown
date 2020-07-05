@@ -44,7 +44,8 @@ function collectPosts(data, config) {
 				id: getPostId(post),
 				slug: getPostSlug(post),
 				coverImageId: getPostCoverImageId(post),
-				imageUrls: []
+				imageUrls: [],
+				podlink: getPostPodlink(post)
 			},
 			frontmatter: {
 				title: getPostTitle(post),
@@ -55,6 +56,28 @@ function collectPosts(data, config) {
 
 	console.log(posts.length + ' posts found.');
 	return posts;
+}
+
+function getPostPodlink(post) {
+	var podlink = "";
+	meta = post.postmeta;
+	for (const [key, value] of meta.entries()) {
+		if (value.meta_key == "enclosure") {
+			console.log("Yes");
+			console.log(meta[key]);
+			console.log(meta[key].meta_value);
+			podlink = meta[key].meta_value;
+			splitted = podlink[0].split('.mp3');
+			podlink = splitted[0] + '.mp3';
+			try {
+				console.log(podlink);
+				new URL(podlink);
+			} catch (_) {
+				return ""
+			}
+		}
+	}
+	return podlink;
 }
 
 function getPostId(post) {
@@ -135,7 +158,7 @@ function mergeImagesIntoPosts(images, posts) {
 				// save cover image filename to frontmatter
 				post.frontmatter.coverImage = shared.getFilenameFromUrl(image.url);
 			}
-			
+
 			// save (unique) full image URLs for downloading later
 			if (!post.meta.imageUrls.includes(image.url)) {
 				post.meta.imageUrls.push(image.url);

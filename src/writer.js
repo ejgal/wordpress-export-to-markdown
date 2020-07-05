@@ -26,7 +26,7 @@ async function processPayloadsPromise(payloads, loadFunc, config) {
 			}
 		}, payload.delay);
 	}));
-	
+
 	const results = await Promise.allSettled(promises);
 	const failedCount = results.filter(result => result.status === 'rejected').length;
 	if (failedCount === 0) {
@@ -61,7 +61,13 @@ async function loadMarkdownFilePromise(post) {
 		const value = (pair[1] || '').replace(/"/g, '\\"');
 		output += key + ': "' + value + '"\n';
 	});
-	output += '---\n\n' + post.content + '\n';
+	try {
+		new URL(post.meta.podlink);
+	} catch (_) {
+		return output;
+	}
+	output += '\n\n\n' + 'podcast link: ' + post.meta.podlink + '\n';
+	output += 'Look for podcast file on the archive server.'
 	return output;
 }
 
